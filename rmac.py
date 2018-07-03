@@ -29,10 +29,20 @@ class RadiusDB:
         self.cursor.execute("SELECT * FROM radcheck ORDER BY id DESC LIMIT 1")
         user_id = self.cursor.fetchone()[0] + 1
         self.cursor.execute("INSERT INTO radcheck (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(user_id, username, password))
+        if self.cursor.rowcount == 0:
+            avalon.warning('No rows affected')
+            return
+        else:
+            avalon.info('{} row(s) affected'.format(self.cursor.rowcount))
         self.connection.commit()
 
     def del_user(self, username):
         self.cursor.execute("DELETE FROM radcheck WHERE username = '{}'".format(username))
+        if self.cursor.rowcount == 0:
+            avalon.warning('No rows affected')
+            return
+        else:
+            avalon.info('{} row(s) affected'.format(self.cursor.rowcount))
         self.connection.commit()
 
     def interactive(self):
