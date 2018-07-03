@@ -11,9 +11,12 @@ Licensed under the GNU General Public License Version 3 (GNU GPL v3),
 (C) 2018 K4YT3X
 """
 import avalon_framework as avalon
+import binascii
+import hashlib
 import MySQLdb
+import re
 
-VERSION = '1.0'
+VERSION = '1.1'
 
 
 class RadiusDB:
@@ -27,7 +30,14 @@ class RadiusDB:
         data = self.cursor.fetchone()
         print('DB Version: {}'.format(data))
 
+    def ntlm_hash(self, plaintext):
+        hash = hashlib.new('md4', plaintext.encode('utf-16le')).digest()
+        return binascii.hexlify(hash).decode('utf-8')
+
     def add_user(self, username, password):
+        prog = re.compile('^[a-f0-9]{32}$')
+        if prog.match(password) is None:
+            password = self.ntlm_hash(password)
         self.cursor.execute("SELECT * FROM radcheck ORDER BY id DESC LIMIT 1")
         user_id = self.cursor.fetchone()[0] + 1
         self.cursor.execute("INSERT INTO radcheck (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(user_id, username, password))
@@ -61,7 +71,10 @@ class RadiusDB:
                 raw_input = input('>>> ')
                 command = raw_input.lower().split(' ')
                 try:
-                    if command[0] == 'help':
+                    if command[0] == 'exit':
+                        avalon.dbgInfo('Exiting')
+                        exit(0)
+                    elif command[0] == 'help':
                         self.print_help()
                     elif command[0] == 'adduser':
                         if ' ' in command[1]:
@@ -78,7 +91,7 @@ class RadiusDB:
                 except IndexError:
                     avalon.error('You are missing components in your command')
         except KeyboardInterrupt:
-            avalon.warning('Exiting')
+            avalon.warning('Ctrl^C caught, exiting')
             exit(0)
 
 
