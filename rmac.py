@@ -27,7 +27,7 @@ class RadiusDB:
 
     def version(self):
         self.cursor.execute('SELECT VERSION()')
-        data = self.cursor.fetchone()
+        data = self.cursor.fetchone()[0]
         print('DB Version: {}'.format(data))
 
     def ntlm_hash(self, plaintext):
