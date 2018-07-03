@@ -13,6 +13,8 @@ Licensed under the GNU General Public License Version 3 (GNU GPL v3),
 import avalon_framework as avalon
 import MySQLdb
 
+VERSION = '1.0'
+
 
 class RadiusDB:
 
@@ -33,7 +35,7 @@ class RadiusDB:
             avalon.warning('No rows affected')
             return
         else:
-            avalon.info('{} row(s) affected'.format(self.cursor.rowcount))
+            avalon.dbgInfo('{} row(s) affected'.format(self.cursor.rowcount))
         self.connection.commit()
 
     def del_user(self, username):
@@ -42,7 +44,7 @@ class RadiusDB:
             avalon.warning('No rows affected')
             return
         else:
-            avalon.info('{} row(s) affected'.format(self.cursor.rowcount))
+            avalon.dbgInfo('{} row(s) affected'.format(self.cursor.rowcount))
         self.connection.commit()
 
     def interactive(self):
@@ -54,26 +56,30 @@ class RadiusDB:
         print('deluser [username]')
 
     def command_interpreter(self):
-        while True:
-            raw_input = input('>>> ')
-            command = raw_input.lower().split(' ')
-            try:
-                if command[0] == 'help':
-                    self.print_help()
-                elif command[0] == 'adduser':
-                    if ' ' in command[1]:
-                        avalon.error('There cannot be spaces in usernames')
-                        continue
-                    self.add_user(command[1], command[2])
-                elif command[0] == 'deluser':
-                    if ' ' in command[1]:
-                        avalon.error('There cannot be spaces in usernames')
-                        continue
-                    self.del_user(command[1])
-                else:
-                    self.print_help()
-            except IndexError:
-                avalon.error('You are missing components in your command')
+        try:
+            while True:
+                raw_input = input('>>> ')
+                command = raw_input.lower().split(' ')
+                try:
+                    if command[0] == 'help':
+                        self.print_help()
+                    elif command[0] == 'adduser':
+                        if ' ' in command[1]:
+                            avalon.error('There cannot be spaces in usernames')
+                            continue
+                        self.add_user(command[1], command[2])
+                    elif command[0] == 'deluser':
+                        if ' ' in command[1]:
+                            avalon.error('There cannot be spaces in usernames')
+                            continue
+                        self.del_user(command[1])
+                    else:
+                        self.print_help()
+                except IndexError:
+                    avalon.error('You are missing components in your command')
+        except KeyboardInterrupt:
+            avalon.warning('Exiting')
+            exit(0)
 
 
 rdb = RadiusDB()
