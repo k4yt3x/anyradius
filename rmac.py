@@ -4,7 +4,7 @@
 Name: Radius MySQL Account Controller
 Dev: K4YT3X
 Date Created: July 2, 2018
-Last Modified: July 2, 2018
+Last Modified: July 5, 2018
 
 Licensed under the GNU General Public License Version 3 (GNU GPL v3),
     available at: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -15,6 +15,7 @@ import binascii
 import hashlib
 import MySQLdb
 import re
+from prettytable import PrettyTable
 
 VERSION = '1.2'
 
@@ -70,6 +71,13 @@ class RadiusDB:
             return True
         return False
 
+    def list_users(self):
+        total_users = self.cursor.execute("SELECT * FROM radcheck")
+        table = PrettyTable(['ID', 'Username', 'Password'])
+        for user in self.cursor.fetchall():
+            table.add_row([user[0], user[1], user[4]])
+        avalon.print('Query complete, {} users found in database'.format(total_users))
+
     def interactive(self):
         while True:
             exec(input('>>> '))
@@ -77,6 +85,7 @@ class RadiusDB:
     def print_help(self):
         print('adduser [username] [password]')
         print('deluser [username]')
+        print('list')
 
     def command_interpreter(self):
         try:
@@ -99,6 +108,9 @@ class RadiusDB:
                             avalon.error('There cannot be spaces in usernames')
                             continue
                         self.del_user(command[1])
+                    elif command[0] == 'list':
+                        self.list_users()
+                        continue
                     else:
                         self.print_help()
                 except IndexError:
