@@ -102,8 +102,9 @@ class RadiusDB:
             exit(0)
 
 
-rdb = RadiusDB()
-rdb.version()
-# rdb.interactive()
-rdb.command_interpreter()
-rdb.connection.close()
+if __name__ == '__main__':
+    rdb = RadiusDB()
+    rdb.version()
+    # rdb.interactive()
+    rdb.command_interpreter()
+    rdb.connection.close()
