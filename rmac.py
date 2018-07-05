@@ -77,7 +77,7 @@ class RadiusDB:
         for user in self.cursor.fetchall():
             table.add_row([user[0], user[1], user[4]])
         print(table)
-        avalon.print('Query complete, {} users found in database'.format(total_users))
+        avalon.info('Query complete, {} users found in database'.format(total_users))
 
     def interactive(self):
         while True:
