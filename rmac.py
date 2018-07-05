@@ -126,9 +126,6 @@ class RadiusDB:
                     elif command[0] == 'help':
                         self.print_help()
                     elif command[0] == 'adduser':
-                        if ' ' in command[1]:
-                            avalon.error('There cannot be spaces in usernames')
-                            continue
                         self.add_user(command[1], command[2])
                     elif command[0] == 'deluser':
                         if ' ' in command[1]:
@@ -137,7 +134,6 @@ class RadiusDB:
                         self.del_user(command[1])
                     elif command[0] == 'list':
                         self.list_users()
-                        continue
                     else:
                         self.print_help()
                 except IndexError:
