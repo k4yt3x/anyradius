@@ -16,7 +16,7 @@ import hashlib
 import MySQLdb
 import re
 
-VERSION = '1.1'
+VERSION = '1.2'
 
 
 class RadiusDB:
@@ -56,6 +56,13 @@ class RadiusDB:
         else:
             avalon.dbgInfo('{} row(s) affected'.format(self.cursor.rowcount))
         self.connection.commit()
+
+    def user_exists(self, username):
+        self.cursor.execute("SELECT * FROM radcheck WHERE username = '{}'".format(username))
+        user_id = self.cursor.fetchone()
+        if user_id is not None:
+            return True
+        return False
 
     def interactive(self):
         while True:
