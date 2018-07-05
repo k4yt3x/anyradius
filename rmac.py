@@ -17,7 +17,26 @@ import MySQLdb
 import re
 from prettytable import PrettyTable
 
-VERSION = '1.2'
+VERSION = '1.3'
+
+
+def missing_elements(L, start, end):
+    if end - start <= 1:
+        if L[end] - L[start] > 1:
+            yield from range(L[start] + 1, L[end])
+        return
+
+    index = start + (end - start) // 2
+
+    # is the lower half consecutive?
+    consecutive_low = L[index] == L[start] + (index - start)
+    if not consecutive_low:
+        yield from missing_elements(L, start, index)
+
+    # is the upper part consecutive?
+    consecutive_high = L[index] == L[end] - (end - index)
+    if not consecutive_high:
+        yield from missing_elements(L, index, end)
 
 
 class RadiusDB:
@@ -45,8 +64,15 @@ class RadiusDB:
         prog = re.compile('^[a-f0-9]{32}$')
         if prog.match(password) is None:
             password = self.ntlm_hash(password)
-        self.cursor.execute("SELECT * FROM radcheck ORDER BY id DESC LIMIT 1")
-        user_id = self.cursor.fetchone()[0] + 1
+
+        # Pick an id for user
+        self.cursor.execute("SELECT * FROM radcheck")
+        used_ids = []
+        for user in self.cursor.fetchall():
+            used_ids.append(user[0])
+        used_ids_sorted = sorted(used_ids)
+        user_id = list(missing_elements(used_ids_sorted, 1, used_ids_sorted[-1]))[0]
+
         self.cursor.execute("INSERT INTO radcheck (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(user_id, username, password))
         if self.cursor.rowcount == 0:
             avalon.warning('No rows affected')
