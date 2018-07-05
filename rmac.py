@@ -16,6 +16,7 @@ import hashlib
 import MySQLdb
 import re
 from prettytable import PrettyTable
+import traceback
 
 VERSION = '1.3'
 
@@ -71,7 +72,7 @@ class RadiusDB:
         for user in self.cursor.fetchall():
             used_ids.append(user[0])
         used_ids_sorted = sorted(used_ids)
-        user_id = list(missing_elements(used_ids_sorted, 1, used_ids_sorted[-1]))[0]
+        user_id = list(missing_elements(used_ids_sorted, 0, len(used_ids_sorted) - 1))[0]
 
         self.cursor.execute("INSERT INTO radcheck (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(user_id, username, password))
         if self.cursor.rowcount == 0:
@@ -138,6 +139,7 @@ class RadiusDB:
                         self.print_help()
                 except IndexError:
                     avalon.error('You are missing components in your command')
+                    traceback.print_exc()
         except KeyboardInterrupt:
             avalon.warning('Ctrl^C caught, exiting')
             exit(0)
