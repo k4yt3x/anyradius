@@ -25,6 +25,12 @@ class RadiusDB:
         self.connection = MySQLdb.connect('localhost', 'radius', 'thisisthegensokyoradiuspassword', 'radius')
         self.cursor = self.connection.cursor()
 
+    def __del__(self):
+        try:
+            self.connection.close()
+        except Exception:
+            pass
+
     def version(self):
         self.cursor.execute('SELECT VERSION()')
         data = self.cursor.fetchone()[0]
