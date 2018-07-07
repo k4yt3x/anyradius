@@ -18,7 +18,7 @@ import re
 from prettytable import PrettyTable
 import traceback
 
-VERSION = '1.3'
+VERSION = '1.3.1'
 
 
 def missing_elements(L, start, end):
@@ -72,7 +72,10 @@ class RadiusDB:
         for user in self.cursor.fetchall():
             used_ids.append(user[0])
         used_ids_sorted = sorted(used_ids)
-        user_id = list(missing_elements(used_ids_sorted, 0, len(used_ids_sorted) - 1))[0]
+        try:
+            user_id = list(missing_elements(used_ids_sorted, 0, len(used_ids_sorted) - 1))[0]
+        except IndexError:
+            user_id = used_ids_sorted[-1] + 1
 
         self.cursor.execute("INSERT INTO radcheck (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(user_id, username, password))
         if self.cursor.rowcount == 0:
