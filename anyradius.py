@@ -271,7 +271,7 @@ def main():
     except IndexError:
         avalon.warning('No commands specified')
         exit(0)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         avalon.warning('Exiting')
         exit(0)
     except Exception:
