@@ -172,6 +172,7 @@ def print_help():
         "AddUser [username] [password]",
         "DelUser [username]",
         "ShowUsers",
+        "Exit / Quit",
         "",
     ]
     for line in help_lines:
@@ -198,6 +199,9 @@ def command_interpreter(db_connection, commands):
             result = db_connection.del_user(commands[2])
         elif commands[1].lower() == 'showusers':
             result = db_connection.show_users()
+        elif commands[1].lower() == 'exit' or commands[1].lower() == 'quit':
+            avalon.warning('Exiting')
+            exit(0)
         else:
             avalon.error('Invalid command')
             print('Use \'Help\' command to list available commands')
