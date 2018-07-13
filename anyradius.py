@@ -18,10 +18,19 @@ import binascii
 import hashlib
 import MySQLdb
 import re
+import readline
 import sys
 import traceback
 
-VERSION = '1.4.3'
+VERSION = '1.4.4'
+COMMANDS = [
+    "TruncateUserTable",
+    "AddUser",
+    "DelUser",
+    "ShowUsers",
+    "Exit",
+    "Quit",
+]
 
 
 def show_affection(function):
@@ -63,6 +72,23 @@ def missing_elements(L, start, end):
     consecutive_high = L[index] == L[end] - (end - index)
     if not consecutive_high:
         yield from missing_elements(L, index, end)
+
+
+class ShellCompleter(object):
+
+    def __init__(self, options):
+        self.options = sorted(options)
+
+    def complete(self, text, state):
+        if state == 0:
+            if text:
+                self.matches = [s for s in self.options if s and s.lower().startswith(text.lower())]
+            else:
+                self.matches = self.options[:]
+        try:
+            return self.matches[state]
+        except IndexError:
+            return None
 
 
 class UserDatabase:
@@ -224,7 +250,11 @@ def main():
     # Begin command interpreting
     try:
         if sys.argv[1].lower() == 'interactive' or sys.argv[1].lower() == 'int':
-            # Launch interactive AnyRadius shell
+            # Set command completer
+            completer = ShellCompleter(COMMANDS)
+            readline.set_completer(completer.complete)
+            readline.parse_and_bind('tab: complete')
+            # Launch interactive trojan shell
             prompt = '\n{}[AnyRadius]> {}'.format(avalon.FM.BD, avalon.FM.RST)
             while True:
                 command_interpreter(rdb, [''] + input(prompt).split(' '))
