@@ -10,7 +10,7 @@ Licensed under the GNU General Public License Version 3 (GNU GPL v3),
     available at: https://www.gnu.org/licenses/gpl-3.0.txt
 (C) 2018 K4YT3X
 
-Description: A MySQL radius account controller
+Description: An account controller for radius 
 """
 from prettytable import PrettyTable
 import avalon_framework as avalon
@@ -21,7 +21,7 @@ import re
 import sys
 import traceback
 
-VERSION = '1.4.1'
+VERSION = '1.4.2'
 
 
 def show_affection(function):
@@ -65,7 +65,7 @@ def missing_elements(L, start, end):
         yield from missing_elements(L, index, end)
 
 
-class RadiusDB:
+class UserDatabase:
     def __init__(self, db_host, db_user, db_pass, db, table):
         """ Initialize database connection
         """
@@ -167,7 +167,7 @@ def ntlm_hash(self, plaintext):
 
 def print_help():
     help_lines = [
-        "{}Commands are not case-sensitive{}".format(avalon.FM.BD, avalon.FM.RST),
+        "\n{}Commands are not case-sensitive{}".format(avalon.FM.BD, avalon.FM.RST),
         "TruncateUserTable",
         "AddUser [username] [password]",
         "DelUser [username]",
@@ -215,7 +215,7 @@ def main():
     this file is not being imported.
     """
     # Create database controller connection
-    rdb = RadiusDB('localhost', 'radius', 'thisisthegensokyoradiuspassword', 'radius', 'radcheck')
+    rdb = UserDatabase('localhost', 'radius', 'thisisthegensokyoradiuspassword', 'radius', 'radcheck')
 
     # Begin command interpreting
     try:
@@ -241,5 +241,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-else:
-    avalon.warning('This file cannot be imported')
