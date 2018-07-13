@@ -109,7 +109,7 @@ class UserDatabase:
         """
         prog = re.compile('^[a-f0-9]{32}$')
         if prog.match(password) is None:
-            password = self.ntlm_hash(password)
+            password = ntlm_hash(password)
 
         # Pick an id for user
         self.cursor.execute("SELECT * FROM {}".format(self.table))
