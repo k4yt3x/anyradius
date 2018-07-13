@@ -158,7 +158,7 @@ class UserDatabase:
         avalon.info('Query complete, {} users found in database'.format(total_users))
 
 
-def ntlm_hash(self, plaintext):
+def ntlm_hash(plaintext):
     """ Returns the mschap hashed text
     """
     hash = hashlib.new('md4', plaintext.encode('utf-16le')).digest()
