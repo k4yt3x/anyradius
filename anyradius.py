@@ -21,7 +21,7 @@ import re
 import sys
 import traceback
 
-VERSION = '1.4.0'
+VERSION = '1.4.1'
 
 
 def show_affection(function):
@@ -78,6 +78,8 @@ class RadiusDB:
         self.cursor = self.connection.cursor()
 
     def __del__(self):
+        """ Disconnect if connection still alive
+        """
         try:
             self.connection.close()
         except Exception:
@@ -95,6 +97,16 @@ class RadiusDB:
     @show_affection
     @catch_mysql_errors
     def add_user(self, username, password):
+        """ Add a new user into the database
+
+        This method adds new user into the database.
+        Password will be added as is if it is already
+        hashed. Otherwise the function will automatically
+        has the password.
+
+        IDs will be recycled upon deletion, and will be
+        assigned to new users.
+        """
         prog = re.compile('^[a-f0-9]{32}$')
         if prog.match(password) is None:
             password = self.ntlm_hash(password)
@@ -116,16 +128,17 @@ class RadiusDB:
     @show_affection
     @catch_mysql_errors
     def del_user(self, username):
+        """ Delete a user from the database
+        """
         self.cursor.execute("DELETE FROM {} WHERE username = '{}'".format(self.table, username))
-        if self.cursor.rowcount == 0:
-            avalon.warning('No rows affected')
-            return
-        else:
-            avalon.dbgInfo('{} row(s) affected'.format(self.cursor.rowcount))
         self.connection.commit()
 
     @catch_mysql_errors
     def user_exists(self, username):
+        """ Determines if a user exists
+
+        Returns true if user exists, false otherwise
+        """
         self.cursor.execute("SELECT * FROM {} WHERE username = '{}'".format(self.table, username))
         user_id = self.cursor.fetchone()
         if user_id is not None:
@@ -135,6 +148,8 @@ class RadiusDB:
     @show_affection
     @catch_mysql_errors
     def show_users(self):
+        """ List all users from the database
+        """
         total_users = self.cursor.execute("SELECT * FROM {}".format(self.table))
         table = PrettyTable(['ID', 'Username', 'Password'])
         for user in self.cursor.fetchall():
@@ -144,6 +159,8 @@ class RadiusDB:
 
 
 def ntlm_hash(self, plaintext):
+    """ Returns the mschap hashed text
+    """
     hash = hashlib.new('md4', plaintext.encode('utf-16le')).digest()
     return binascii.hexlify(hash).decode('utf-8')
 
