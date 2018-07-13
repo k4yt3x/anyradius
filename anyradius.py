@@ -10,7 +10,7 @@ Licensed under the GNU General Public License Version 3 (GNU GPL v3),
     available at: https://www.gnu.org/licenses/gpl-3.0.txt
 (C) 2018 K4YT3X
 
-Description: An account controller for radius 
+Description: An account controller for radius
 """
 from prettytable import PrettyTable
 import avalon_framework as avalon
@@ -21,7 +21,7 @@ import re
 import sys
 import traceback
 
-VERSION = '1.4.2'
+VERSION = '1.4.3'
 
 
 def show_affection(function):
@@ -219,7 +219,7 @@ def main():
 
     # Begin command interpreting
     try:
-        if sys.argv[1].lower() == 'interactive':
+        if sys.argv[1].lower() == 'interactive' or sys.argv[1].lower() == 'int':
             # Launch interactive AnyRadius shell
             prompt = '\n{}[AnyRadius]> {}'.format(avalon.FM.BD, avalon.FM.RST)
             while True:
