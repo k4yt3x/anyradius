@@ -271,7 +271,7 @@ def main():
             readline.set_completer(completer.complete)
             readline.parse_and_bind('tab: complete')
             # Launch interactive trojan shell
-            prompt = '\n{}[AnyRadius]> {}'.format(avalon.FM.BD, avalon.FM.RST)
+            prompt = '{}[AnyRadius]> {}'.format(avalon.FM.BD, avalon.FM.RST)
             while True:
                 command_interpreter(rdb, [''] + input(prompt).split(' '))
         else:
