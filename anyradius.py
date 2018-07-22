@@ -220,7 +220,9 @@ def command_interpreter(db_connection, commands):
         if len(possibilities) == 1:
             commands[1] = possibilities[0]
 
-        if commands[1].lower() == 'help':
+        if commands[1].replace(' ', '') == '':
+            result = 0
+        elif commands[1].lower() == 'help':
             print_help()
             result = 0
         elif commands[1].lower() == 'truncateusertable':
