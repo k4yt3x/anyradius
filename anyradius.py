@@ -16,6 +16,7 @@ from prettytable import PrettyTable
 import avalon_framework as avalon
 import binascii
 import hashlib
+import json
 import MySQLdb
 import re
 import readline
