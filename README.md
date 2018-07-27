@@ -1,8 +1,15 @@
+[![GitHub issues](https://img.shields.io/github/issues/K4YT3X/AnyRadius.svg)](https://github.com/K4YT3X/AnyRadius/issues)
+[![GitHub license](https://img.shields.io/github/license/K4YT3X/AnyRadius.svg)](https://github.com/K4YT3X/AnyRadius/blob/master/LICENSE)
+
 # AnyRadius
+
+## Latest Update (July 27, 2018)
+- Added json config support
+- Added basic documentation
 
 ## Description
 
-AnyRadius is a python software that can manage freeradius users in MySQL. It features an easy-to-use shell (somewhat Cisco like), which can make adding and removing users from the database easier, faster and more intuitive.
+AnyRadius is a python software that can **manage freeradius users in MySQL**. It features an easy-to-use shell (somewhat Cisco like), which can make adding and removing users from the database easier, faster and more intuitive.
 
 ![Screenshot](https://user-images.githubusercontent.com/21986859/43348094-593a5156-91c6-11e8-9501-490e67021d28.png)
 
