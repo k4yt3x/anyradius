@@ -22,7 +22,7 @@ import readline
 import sys
 import traceback
 
-VERSION = '1.4.5'
+VERSION = '1.4.6'
 COMMANDS = [
     "TruncateUserTable",
     "AddUser",
@@ -256,13 +256,30 @@ def command_interpreter(db_connection, commands):
         result = 0
 
 
+def read_config(config_path):
+    with open(config_path, 'r') as anyconfig:
+        settings = json.loads(anyconfig.read())
+        return settings['db_host'], settings['db_user'], settings['db_pass'], settings['db'], settings['table']
+
+
 def main():
     """ AnyRadius Manager main function
     This function can only be executed when
     this file is not being imported.
     """
     # Create database controller connection
-    rdb = UserDatabase('localhost', 'radius', 'thisisthegensokyoradiuspassword', 'radius', 'radcheck')
+
+    try:
+        if sys.argv[1].lower() == 'config':
+            config_path = sys.argv[2]
+        else:
+            config_path = '/etc/anyradius.json'
+    except IndexError:
+        avalon.error('Error parsing configuration file path')
+        exit(1)
+
+    db_host, db_user, db_pass, db, table = read_config(config_path)
+    rdb = UserDatabase(db_host, db_user, db_pass, db, table)
 
     # Begin command interpreting
     try:

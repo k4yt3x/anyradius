@@ -1,0 +1,7 @@
+{
+    "db_host": "localhost",
+    "db_user": "MYSQL USER",
+    "db_pass": "MYSQL USER PASSWORD",
+    "db": "radius",
+    "table": "radcheck",
+}
