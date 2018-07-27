@@ -271,7 +271,10 @@ def main():
     # Create database controller connection
 
     try:
-        if sys.argv[1].lower() == 'config':
+        if sys.argv[1].lower() == 'help':
+            print_help()
+            exit(0)
+        elif sys.argv[1].lower() == 'config':
             config_path = sys.argv[2]
         else:
             config_path = '/etc/anyradius.json'
