@@ -279,8 +279,12 @@ def main():
         avalon.error('Error parsing configuration file path')
         exit(1)
 
+    avalon.dbgInfo('Reading config from: {}'.format(config_path))
     db_host, db_user, db_pass, db, table = read_config(config_path)
+
+    avalon.info('Connecting to RADIUS database')
     rdb = UserDatabase(db_host, db_user, db_pass, db, table)
+    avalon.info('Database connection established')
 
     # Begin command interpreting
     try:
@@ -300,6 +304,10 @@ def main():
     except IndexError:
         avalon.warning('No commands specified')
         exit(0)
+    except (MySQLdb.Error, MySQLdb.Warning):
+        avalon.errors('Database error')
+        traceback.print_exc()
+        exit(1)
     except (KeyboardInterrupt, EOFError):
         avalon.warning('Exiting')
         exit(0)
