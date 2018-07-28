@@ -147,7 +147,10 @@ class UserDatabase:
         try:
             user_id = list(missing_elements(used_ids_sorted, 0, len(used_ids_sorted) - 1))[0]
         except IndexError:
-            user_id = used_ids_sorted[-1] + 1
+            try:
+                user_id = used_ids_sorted[-1] + 1
+            except IndexError:
+                user_id = 1
 
         self.cursor.execute("INSERT INTO {} (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(self.table, user_id, username, password))
         self.connection.commit()
