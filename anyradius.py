@@ -4,7 +4,7 @@
 Name: AnyRadius
 Dev: K4YT3X
 Date Created: July 2, 2018
-Last Modified: July 17, 2018
+Last Modified: October 12, 2018
 
 Licensed under the GNU General Public License Version 3 (GNU GPL v3),
     available at: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -14,16 +14,19 @@ Description: An account controller for radius
 """
 from prettytable import PrettyTable
 import avalon_framework as avalon
+import base64
 import binascii
 import hashlib
 import json
 import MySQLdb
+import random
 import re
 import readline
 import sys
+import string
 import traceback
 
-VERSION = '1.4.6'
+VERSION = '1.5.0'
 COMMANDS = [
     "TruncateUserTable",
     "AddUser",
@@ -136,7 +139,8 @@ class UserDatabase:
         """
         prog = re.compile('^[a-f0-9]{32}$')
         if prog.match(password) is None:
-            password = ntlm_hash(password)
+            # password = ntlm_hash(password)
+            password = sha2_512_hash(password)
 
         # Pick an id for user
         self.cursor.execute("SELECT * FROM {}".format(self.table))
@@ -152,7 +156,8 @@ class UserDatabase:
             except IndexError:
                 user_id = 1
 
-        self.cursor.execute("INSERT INTO {} (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(self.table, user_id, username, password))
+        # self.cursor.execute("INSERT INTO {} (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(self.table, user_id, username, password))
+        self.cursor.execute("INSERT INTO {} (id, username, attribute, op, value) VALUES ({}, '{}', 'SHA2-Password',':=', '{}')".format(self.table, user_id, username, password))
         self.connection.commit()
 
     @show_affection
@@ -181,9 +186,9 @@ class UserDatabase:
         """ List all users from the database
         """
         total_users = self.cursor.execute("SELECT * FROM {}".format(self.table))
-        table = PrettyTable(['ID', 'Username', 'Password'])
+        table = PrettyTable(['ID', 'Username', 'Method', 'Password'])
         for user in self.cursor.fetchall():
-            table.add_row([user[0], user[1], user[4]])
+            table.add_row([user[0], user[1], user[2], user[4]])
         print(table)
         avalon.info('Query complete, {} users found in database'.format(total_users))
 
@@ -194,6 +199,10 @@ def ntlm_hash(plaintext):
     hash = hashlib.new('md4', plaintext.encode('utf-16le')).digest()
     return binascii.hexlify(hash).decode('utf-8')
 
+def sha2_512_hash(plaintext):
+    """ Returns Salted SHA2-512 hashed password
+    """
+    return hashlib.sha512('{}'.format(plaintext).encode('utf-8')).hexdigest()
 
 def print_legal_info():
     print('AnyRadius {}'.format(VERSION))
