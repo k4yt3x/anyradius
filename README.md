@@ -3,9 +3,9 @@
 
 # AnyRadius
 
-## Latest Update (July 27, 2018)
-- Added json config support
-- Added basic documentation
+## Latest Update (October 12, 2018)
+- Changed password hashing from NTLM to SHA2-512
+- Displaying hashing method when doing ShowUsers
 
 ## Description
 
