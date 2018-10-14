@@ -14,16 +14,13 @@ Description: An account controller for radius
 """
 from prettytable import PrettyTable
 import avalon_framework as avalon
-import base64
 import binascii
 import hashlib
 import json
 import MySQLdb
-import random
 import re
 import readline
 import sys
-import string
 import traceback
 
 VERSION = '1.5.0'
