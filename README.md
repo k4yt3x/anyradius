@@ -3,9 +3,9 @@
 
 # AnyRadius
 
-## Latest Update (October 12, 2018)
-- Changed password hashing from NTLM to SHA2-512
-- Displaying hashing method when doing ShowUsers
+## 1.5.1 (November 2, 2018)
+
+- Updated for avalon framework 1.6.x
 
 ## Description
 
