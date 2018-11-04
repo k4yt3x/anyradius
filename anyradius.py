@@ -4,7 +4,7 @@
 Name: AnyRadius
 Dev: K4YT3X
 Date Created: July 2, 2018
-Last Modified: October 12, 2018
+Last Modified: November 3, 2018
 
 Licensed under the GNU General Public License Version 3 (GNU GPL v3),
     available at: https://www.gnu.org/licenses/gpl-3.0.txt
@@ -12,8 +12,8 @@ Licensed under the GNU General Public License Version 3 (GNU GPL v3),
 
 Description: An account controller for radius
 """
+from avalon_framework import Avalon
 from prettytable import PrettyTable
-import avalon_framework as avalon
 import binascii
 import hashlib
 import json
@@ -23,7 +23,7 @@ import readline
 import sys
 import traceback
 
-VERSION = '1.5.0'
+VERSION = '1.5.1'
 COMMANDS = [
     "TruncateUserTable",
     "AddUser",
@@ -40,7 +40,7 @@ def show_affection(function):
 
     def wrapper(*args, **kwargs):
         function(*args, **kwargs)
-        avalon.dbgInfo('{} row(s) affected'.format(args[0].cursor.rowcount))
+        Avalon.debug_info('{} row(s) affected'.format(args[0].cursor.rowcount))
     return wrapper
 
 
@@ -51,7 +51,7 @@ def catch_mysql_errors(function):
         try:
             function(*args, **kwargs)
         except (MySQLdb.Error, MySQLdb.Warning) as e:
-            avalon.error(e)
+            Avalon.error(e)
             return 1
     return wrapper
 
@@ -187,7 +187,7 @@ class UserDatabase:
         for user in self.cursor.fetchall():
             table.add_row([user[0], user[1], user[2], user[4]])
         print(table)
-        avalon.info('Query complete, {} users found in database'.format(total_users))
+        Avalon.info('Query complete, {} users found in database'.format(total_users))
 
 
 def ntlm_hash(plaintext):
@@ -196,10 +196,12 @@ def ntlm_hash(plaintext):
     hash = hashlib.new('md4', plaintext.encode('utf-16le')).digest()
     return binascii.hexlify(hash).decode('utf-8')
 
+
 def sha2_512_hash(plaintext):
     """ Returns Salted SHA2-512 hashed password
     """
     return hashlib.sha512('{}'.format(plaintext).encode('utf-8')).hexdigest()
+
 
 def print_legal_info():
     print('AnyRadius {}'.format(VERSION))
@@ -209,7 +211,7 @@ def print_legal_info():
 
 def print_help():
     help_lines = [
-        "\n{}Commands are not case-sensitive{}".format(avalon.FM.BD, avalon.FM.RST),
+        "\n{}Commands are not case-sensitive{}".format(Avalon.FM.BD, Avalon.FM.RST),
         "TruncateUserTable",
         "AddUser [username] [password]",
         "DelUser [username]",
@@ -236,11 +238,11 @@ def command_interpreter(db_connection, commands):
             print_help()
             result = 0
         elif commands[1].lower() == 'truncateusertable':
-            avalon.warning('By truncating you will LOSE ALL USER DATA')
-            if avalon.ask('Are you sure you want to truncate?'):
+            Avalon.warning('By truncating you will LOSE ALL USER DATA')
+            if Avalon.ask('Are you sure you want to truncate?'):
                 result = db_connection.truncate_user_table()
             else:
-                avalon.warning('Operation canceled')
+                Avalon.warning('Operation canceled')
                 result = 0
         elif commands[1].lower() == 'adduser':
             result = db_connection.add_user(commands[2], commands[3])
@@ -249,19 +251,19 @@ def command_interpreter(db_connection, commands):
         elif commands[1].lower() == 'showusers':
             result = db_connection.show_users()
         elif commands[1].lower() == 'exit' or commands[1].lower() == 'quit':
-            avalon.warning('Exiting')
+            Avalon.warning('Exiting')
             exit(0)
         elif len(possibilities) > 0:
-            avalon.warning('Ambiguous command \"{}\"'.format(commands[1]))
+            Avalon.warning('Ambiguous command \"{}\"'.format(commands[1]))
             print('Use \"Help\" command to list available commands')
             result = 1
         else:
-            avalon.error('Invalid command')
+            Avalon.error('Invalid command')
             print('Use \"Help\" command to list available commands')
             result = 1
         return result
     except IndexError:
-        avalon.error('Invalid arguments')
+        Avalon.error('Invalid arguments')
         print('Use \"Help\" command to list available commands')
         result = 0
 
@@ -288,15 +290,15 @@ def main():
         else:
             config_path = '/etc/anyradius.json'
     except IndexError:
-        avalon.error('Error parsing configuration file path')
+        Avalon.error('Error parsing configuration file path')
         exit(1)
 
-    avalon.dbgInfo('Reading config from: {}'.format(config_path))
+    Avalon.debug_info('Reading config from: {}'.format(config_path))
     db_host, db_user, db_pass, db, table = read_config(config_path)
 
-    avalon.info('Connecting to RADIUS database')
+    Avalon.info('Connecting to RADIUS database')
     rdb = UserDatabase(db_host, db_user, db_pass, db, table)
-    avalon.info('Database connection established')
+    Avalon.info('Database connection established')
 
     # Begin command interpreting
     try:
@@ -307,24 +309,24 @@ def main():
             readline.set_completer(completer.complete)
             readline.parse_and_bind('tab: complete')
             # Launch interactive trojan shell
-            prompt = '{}[AnyRadius]> {}'.format(avalon.FM.BD, avalon.FM.RST)
+            prompt = '{}[AnyRadius]> {}'.format(Avalon.FM.BD, Avalon.FM.RST)
             while True:
                 command_interpreter(rdb, [''] + input(prompt).split(' '))
         else:
             # Return to shell with command return value
             exit(command_interpreter(rdb, sys.argv[0:]))
     except IndexError:
-        avalon.warning('No commands specified')
+        Avalon.warning('No commands specified')
         exit(0)
     except (MySQLdb.Error, MySQLdb.Warning):
-        avalon.errors('Database error')
+        Avalon.errors('Database error')
         traceback.print_exc()
         exit(1)
     except (KeyboardInterrupt, EOFError):
-        avalon.warning('Exiting')
+        Avalon.warning('Exiting')
         exit(0)
     except Exception:
-        avalon.error('Exception caught')
+        Avalon.error('Exception caught')
         traceback.print_exc()
         exit(1)
 
