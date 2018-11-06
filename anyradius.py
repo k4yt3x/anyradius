@@ -23,7 +23,7 @@ import readline
 import sys
 import traceback
 
-VERSION = '1.5.1'
+VERSION = '1.5.2'
 COMMANDS = [
     "TruncateUserTable",
     "AddUser",
@@ -39,7 +39,7 @@ def show_affection(function):
     """
 
     def wrapper(*args, **kwargs):
-        function(*args, **kwargs)
+        return function(*args, **kwargs)
         Avalon.debug_info('{} row(s) affected'.format(args[0].cursor.rowcount))
     return wrapper
 
@@ -49,7 +49,7 @@ def catch_mysql_errors(function):
     """
     def wrapper(*args, **kwargs):
         try:
-            function(*args, **kwargs)
+            return function(*args, **kwargs)
         except (MySQLdb.Error, MySQLdb.Warning) as e:
             Avalon.error(e)
             return 1
