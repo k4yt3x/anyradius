@@ -18,7 +18,6 @@ import binascii
 import hashlib
 import json
 import MySQLdb
-import re
 import readline
 import sys
 import traceback
@@ -124,37 +123,11 @@ class UserDatabase:
     @show_affection
     @catch_mysql_errors
     def add_user(self, username, password):
-        """ Add a new user into the database
-
-        This method adds new user into the database.
-        Password will be added as is if it is already
-        hashed. Otherwise the function will automatically
-        has the password.
-
-        IDs will be recycled upon deletion, and will be
-        assigned to new users.
+        """ add a new user into the database
         """
-        prog = re.compile('^[a-f0-9]{32}$')
-        if prog.match(password) is None:
-            # password = ntlm_hash(password)
-            password = sha2_512_hash(password)
+        hashed_password = sha2_224_hash(password)
 
-        # Pick an id for user
-        self.cursor.execute("SELECT * FROM {}".format(self.table))
-        used_ids = []
-        for user in self.cursor.fetchall():
-            used_ids.append(user[0])
-        used_ids_sorted = sorted(used_ids)
-        try:
-            user_id = list(missing_elements(used_ids_sorted, 0, len(used_ids_sorted) - 1))[0]
-        except IndexError:
-            try:
-                user_id = used_ids_sorted[-1] + 1
-            except IndexError:
-                user_id = 1
-
-        # self.cursor.execute("INSERT INTO {} (id, username, attribute, op, value) VALUES ({}, '{}', 'NT-Password',':=', '{}')".format(self.table, user_id, username, password))
-        self.cursor.execute("INSERT INTO {} (id, username, attribute, op, value) VALUES ({}, '{}', 'SHA2-Password',':=', '{}')".format(self.table, user_id, username, password))
+        self.cursor.execute("INSERT INTO {} (username, password) VALUES ('{}', '{}')".format(self.table, username, hashed_password))
         self.connection.commit()
 
     @show_affection
@@ -183,7 +156,7 @@ class UserDatabase:
         """ List all users from the database
         """
         total_users = self.cursor.execute("SELECT * FROM {}".format(self.table))
-        table = PrettyTable(['ID', 'Username', 'Method', 'Password'])
+        table = PrettyTable(['Username', 'Password'])
         for user in self.cursor.fetchall():
             table.add_row([user[0], user[1], user[2], user[4]])
         print(table)
@@ -197,7 +170,7 @@ def ntlm_hash(plaintext):
     return binascii.hexlify(hash).decode('utf-8')
 
 
-def sha2_512_hash(plaintext):
+def sha2_224_hash(plaintext):
     """ Returns Salted SHA2-512 hashed password
     """
     return hashlib.sha512('{}'.format(plaintext).encode('utf-8')).hexdigest()
@@ -205,7 +178,7 @@ def sha2_512_hash(plaintext):
 
 def print_legal_info():
     print('AnyRadius {}'.format(VERSION))
-    print('(C) 2018 K4YT3X')
+    print('(C) 2018-2019 K4YT3X')
     print('Licensed under GNU GPL v3')
 
 
@@ -319,7 +292,7 @@ def main():
         Avalon.warning('No commands specified')
         exit(0)
     except (MySQLdb.Error, MySQLdb.Warning):
-        Avalon.errors('Database error')
+        Avalon.error('Database error')
         traceback.print_exc()
         exit(1)
     except (KeyboardInterrupt, EOFError):
